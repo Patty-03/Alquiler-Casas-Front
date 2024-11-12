@@ -1,17 +1,7 @@
 <script setup>
-import Header from './components/Header.vue'
-import Hero from './components/Hero.vue'
+import Home from './components/Home.vue';
 </script>
 
 <template>
-  <v-app>
-    <Header></Header>
-    <Hero></Hero>
-  </v-app>
+  <Home></Home>
 </template>
-
-<style scoped>
-*{
-  font-family: Poppins;
-}
-</style>

@@ -1,4 +1,6 @@
 <script setup>
+import { useRouter } from 'vue-router';
+const router = useRouter()
 
 const icons = [
   'mdi-facebook',
@@ -6,6 +8,14 @@ const icons = [
   'mdi-linkedin',
   'mdi-instagram',
 ]
+
+function goToTerms(){
+  router.push('/terms')
+}
+
+function goToRegisterGestor(){
+    router.push('/registerGestor')
+}
 
 </script>
 
@@ -18,16 +28,10 @@ const icons = [
 
       <v-container class="bg-transparent d-flex flex-column justify-center align-content-center flex-wrap">
         <v-list class="bg-transparent d-flex flex-row flex-wrap justify-center">
-          <v-list-item link>
-            Informacion
-          </v-list-item>
-          <v-list-item link>
+          <v-list-item link @click="goToRegisterGestor">
             Alquila tu casa
           </v-list-item>
-          <v-list-item link>
-            Centro de Ayuda
-          </v-list-item>
-          <v-list-item link to="/terms">
+          <v-list-item link @click="goToTerms">
             Terminos y condiciones
           </v-list-item>
         </v-list>

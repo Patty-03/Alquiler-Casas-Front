@@ -19,9 +19,7 @@ const icons = [
         <v-container class="bg-transparent d-flex flex-row justify-space-around align-content-center text-justify">
             <v-list class="bg-transparent">
                 <h3>Sobre Nosotros</h3>
-                <v-list-item link class="rounded-pill">
-                    Informacion
-                </v-list-item>
+
                 <v-list-item link class="rounded-pill">
                     Alquila tu casa
                 </v-list-item>

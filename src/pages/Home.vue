@@ -1,30 +1,31 @@
 <script setup>
-import Header from '../components/commons/Header.vue'
-import Hero from '../components/home/Hero.vue'
-import Services from '../components/home/Services.vue'
-import NearYou from '../components/home/NearYou.vue'
-import Footer from '../components/commons/Footer.vue'
+import HeaderHome from "../components/home/HeaderHome.vue";
+import Footer from "../components/commons/Footer.vue";
+import Hero from "../components/home/Hero.vue";
+import Services from "../components/home/Services.vue";
+import NearYou from "../components/home/NearYou.vue";
+
 
 </script>
 
 <template>
-  <v-app >
-    <header>
-      <Header></Header>
-    </header>
-    <main>
-      <Hero class="mt-28"></Hero>
-    </main>
-    <section id="services">
-      <Services></Services>
-    </section>
-    <section class="mt-16">
-      <NearYou></NearYou>
-    </section>
-    <footer>
-      <Footer></Footer>
-    </footer>
-  </v-app>
+    <v-app>
+        <header>
+            <HeaderHome></HeaderHome>
+        </header>
+        <main>
+            <Hero class="mt-28"></Hero>
+        </main>
+        <section id="services">
+            <Services id="explore"></Services>
+        </section>
+        <section class="mt-16">
+            <NearYou></NearYou>
+        </section>
+        <footer>
+            <Footer id="contact"></Footer>
+        </footer>
+    </v-app>
 </template>
 
 <style scoped>
@@ -43,4 +44,5 @@ html{
 main{
   margin-top: 4rem;
 }
+
 </style>

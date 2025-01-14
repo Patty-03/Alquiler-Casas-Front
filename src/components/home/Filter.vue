@@ -1,5 +1,55 @@
+<script setup>
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { filtroHome, getCiudades } from '../../functions';
+
+
+const router = useRouter();
+const items = ref([]);
+
+async function ciudades() {
+  try{
+    const ciudadesData = await getCiudades()
+     items.value = ciudadesData.map(ciudad => ciudad.ciudad)
+
+  }
+  catch(error){
+    console.error('Error', error)
+  }
+  
+}
+
+let value = ref('');
+let entryDate = ref('');
+let exitDate = ref('');
+let people = ref('');
+
+const requiredRule = (v) => !!v || 'Este campo es obligatorio';
+const form = ref(null);
+
+async function handleSubmit() {
+  const params = {
+    cantMaxPersonas: people.value,
+    nombreCiudad: value.value,
+    fechaEntrada: entryDate.value,
+    fechaSalida: exitDate.value
+  };
+  try {
+    const result = await filtroHome(params);
+    console.log('Resultados', result);
+    router.push('/filterResults');
+  } catch (error) {
+    console.error('Error al filtrar las casas', error);
+  }
+}
+
+onMounted(()=>{
+  ciudades()
+})
+</script>
+
 <template>
-  <v-form ref="form" class="form" @submit.prevent="submitForm">
+  <v-form ref="form" class="form">
     <v-row class="d-flex align-center flex-row justify-center">
       <v-col cols="auto">
         <v-select 
@@ -49,45 +99,11 @@
         ></v-text-field>
       </v-col>
       <v-col cols="auto">
-        <v-btn type="submit" color="purple lighten-1">Buscar</v-btn>
+        <v-btn type="submit" color="purple lighten-1" @click="handleSubmit">Buscar</v-btn>
       </v-col>
     </v-row>
   </v-form>
 </template>
-
-<script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-const router =  useRouter()
-
-// Datos del formulario
-const items = ["La Habana", "Santiago de Cuba", "Trinidad", "Varadero"];
-let value = ref(null);
-let entryDate = ref('');
-let exitDate = ref('');
-let people = ref('');
-
-const requiredRule = (v) => !!v || 'Este campo es obligatorio';
-
-const form = ref(null);
-
-const submitForm = async () => {
-  if (form.value.validate()) {
-    try {
-      const response = await axios.post('http://localhost:5048/', { 
-        lugar: value.value, 
-        fechaEntrada: entryDate.value, 
-        fechaSalida: exitDate.value, 
-        huespedes: people.value
-      })
-    } catch (error) {
-      console.error('Error al enviar el formulario:', error);
-    }
-  } else {
-    console.error('El formulario tiene errores de validación: ');
-  }
-};
-</script>
 
 <style scoped>
 .form {

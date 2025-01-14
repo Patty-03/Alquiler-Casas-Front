@@ -1,7 +1,7 @@
 <template>
   <v-app-bar color="purple lighten-1" prominent>
     <div class="d-flex flex-row align-center justify-evenly w-100 pa-16">
-      <v-toolbar-title class="text-uppercase">Villa</v-toolbar-title>
+      <v-app-bar-title class="text-uppercase">Villa</v-app-bar-title>
       <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"
         v-if="!$vuetify.display.mdAndUp"></v-app-bar-nav-icon>
 

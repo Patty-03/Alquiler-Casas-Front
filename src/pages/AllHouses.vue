@@ -1,29 +1,33 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import HeaderHome from '../components/home/HeaderHome.vue'
-import { useRoute, useRouter } from 'vue-router';
-import casa1 from '../assets/casa1.jpg'
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import MoreFilters from '../components/filterResults/MoreFilters.vue';
+import casa1 from '../assets/casa1.jpg';
+import { getHouses } from '../functions';
+import HeaderHome from '../components/home/HeaderHome.vue'
 
-const data = ref('')
-const route = useRoute()
-const router = useRouter()
-const authStore = useAuthStore()
+const router = useRouter();
+const authStore = useAuthStore();
 
-onMounted(() => {
-    data.value = route.query.data ? JSON.parse(route.query.data): 'No hay datos'
-})
+const houses = ref([]);
 
+onMounted(async () => {
+  try {
+    const fetchedHouses = await getHouses();
+    houses.value = fetchedHouses.map(house => ({ ...house, liked: false }));
+  } catch (error) {
+    console.error('Error al cargar las casas', error);
+  }
+});
 
 const showModal = ref(false);
 const modalMessage = ref('');
 
 const toggleLike = (index) => {
   if (authStore.token) {
-    authStore.addFavorite(data.value[index]);
-    data.value[index].liked = !data.value[index].liked;
-    modalMessage.value = data.value[index].liked
+    authStore.toggleFavorite(houses.value[index]);
+    houses.value[index].liked = !houses.value[index].liked;
+    modalMessage.value = houses.value[index].liked
       ? 'Casa agregada a sus favoritos'
       : 'Casa eliminada de sus favoritos';
   } else {
@@ -38,13 +42,14 @@ const viewMoreDetails = (casa) => {
 </script>
 
 <template>
-    <HeaderHome/>
-    <MoreFilters class="mt-16 mb-2 pt-8"></MoreFilters>
+    <HeaderHome></HeaderHome>
 
-    <v-container class="text-left">
+
+  <div class="pa-10">
+    <v-container class="text-left mt-10">
       <v-row>
         <v-col
-          v-for="(casa, index) in data"
+          v-for="(casa, index) in houses"
           :key="index"
           cols="12"
           sm="6"
@@ -78,7 +83,7 @@ const viewMoreDetails = (casa) => {
         </v-card-actions>
       </v-card>
     </v-dialog>
-
+  </div>
 </template>
 
 <style scoped>

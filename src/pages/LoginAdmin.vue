@@ -55,7 +55,7 @@ async function login() {
   };
 
   await authStore.login(credentials);
-  if (!authStore.error && authStore.userRol == 2) {
+  if (!authStore.error && authStore.userRol == 1) {
     dialog.value = true;
     message.value = "Ha iniciado sesion correctamente";
     color.value = "success";
@@ -76,14 +76,11 @@ async function login() {
 function goToHome(){
   dialog.value = false
   if(color.value === "success"){
-    router.push('/gestor');
+    router.push('/admin');
   }
   
 }
 
-function goToRegister() {
-  router.push('/register');
-}
 </script>
 
 <template>
@@ -96,7 +93,6 @@ function goToRegister() {
         <v-text-field v-model="email" :rules="emailRules" label="E-mail" required class="w-75"></v-text-field>
         <v-text-field v-model="clave" :counter="8" :rules="claveRules" label="Contraseña" required type="password"
           class="w-75"></v-text-field>
-        <v-btn variant="flat" @click="goToRegister" class="mt-6 mb-4">Eres nuevo por aqui? Crea una cuenta</v-btn>
         <v-btn color="purple lighten-1" class="mb-2" @click="login">Iniciar sesion</v-btn>
       </v-form>
     </v-container>

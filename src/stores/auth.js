@@ -6,29 +6,29 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('authToken') || null,
     error: null,
-    favorites: [],
+    favorites: [], 
     userRol: null,
     decodedToken: null,
     userId: null,
-    isLoggedIn: !!localStorage.getItem('authToken')
+    isLoggedIn: !!localStorage.getItem('authToken'),
   }),
   actions: {
     async login(credentials) {
       try {
         const response = await axios.post('http://localhost:5048/api/Login/login', credentials);
-        this.token = response.data.token
-        localStorage.setItem('authToken', this.token)
-        this.decodedToken = decodeJWT(this.token)
-        this.userId = this.decodedToken.sub
-        localStorage.setItem('userId', this.userId)
-        this.userRol = this.decodedToken.role
+        this.token = response.data.token;
+        localStorage.setItem('authToken', this.token);
+        this.decodedToken = decodeJWT(this.token);
+        this.userId = this.decodedToken.sub;
+        localStorage.setItem('userId', this.userId);
+        this.userRol = this.decodedToken.role;
         this.isLoggedIn = true;
         this.error = null;
-        this.loadFavorites();
+        this.loadFavorites(); // Cargar favoritos al iniciar sesión
       } catch (error) {
         console.error('Error al loguearse', error);
         this.error = error.response ? error.response.data : 'Error desconocido';
-        this.isLoggedIn = false; 
+        this.isLoggedIn = false;
       }
     },
     async register(userData) {
@@ -37,10 +37,10 @@ export const useAuthStore = defineStore('auth', {
         this.token = response.data.token;
         localStorage.setItem('authToken', this.token);
         this.error = null;
-        this.isLoggedIn = true; 
+        this.isLoggedIn = true;
       } catch (error) {
         this.error = error.response ? error.response.data : 'Error desconocido';
-        this.isLoggedIn = false; 
+        this.isLoggedIn = false;
       }
     },
     logout() {
@@ -49,27 +49,42 @@ export const useAuthStore = defineStore('auth', {
       this.token = null;
       this.favorites = [];
       this.decodedToken = null;
-      this.isLoggedIn = false; 
+      this.isLoggedIn = false;
       localStorage.removeItem('authToken');
+      localStorage.removeItem('favorites'); // Limpiar favoritos al cerrar sesión
     },
+    // Cargar favoritos desde localStorage
     loadFavorites() {
       const storedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
-      this.favorites = storedFavorites.map(fav => ({ ...fav, liked: true })); 
+      this.favorites = storedFavorites;
     },
+    // Verifica si una casa ya está en favoritos
+    isFavorite(houseId) {
+      return this.favorites.some(fav => fav.idCasa === houseId);
+    },
+    // Agregar una casa a favoritos (si no está ya)
     addFavorite(house) {
-      this.favorites.push(house);
-      localStorage.setItem('favorites', JSON.stringify(this.favorites));
+      if (!this.isFavorite(house.idCasa)) {
+        this.favorites.push({ ...house, liked: true }); // Agregar la casa con el estado liked
+        this.saveFavorites(); // Guardar en localStorage
+      }
     },
+    // Eliminar una casa de favoritos
     removeFavorite(house) {
-      this.favorites = this.favorites.filter(fav => fav.id !== house.id);
-      localStorage.setItem('favorites', JSON.stringify(this.favorites));
+      this.favorites = this.favorites.filter(fav => fav.idCasa !== house.idCasa);
+      this.saveFavorites(); // Guardar en localStorage
     },
+    // Alternar el estado de favorito de una casa
     toggleFavorite(house) {
-      if (this.favorites.some(fav => fav.id === house.id)) {
+      if (this.isFavorite(house.idCasa)) {
         this.removeFavorite(house);
       } else {
         this.addFavorite(house);
       }
-    }
-  }
+    },
+    // Guardar favoritos en localStorage
+    saveFavorites() {
+      localStorage.setItem('favorites', JSON.stringify(this.favorites));
+    },
+  },
 });

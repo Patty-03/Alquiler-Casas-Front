@@ -3,8 +3,9 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import casa1 from '../assets/casa1.jpg';
-import { getHouses } from '../functions';
+import { getHouses, convertToFullPath } from '../functions';
 import HeaderHome from '../components/home/HeaderHome.vue'
+import Footer from '../components/commons/Footer.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -58,10 +59,10 @@ const viewMoreDetails = (casa) => {
         >
           <v-card>
             <v-img
-              :src="casa1"
+              :src="casa.fotosURL && casa.fotosURL.length > 0 ? convertToFullPath(casa.fotosURL[0]) : casa1"
               class="white--text align-end"
             >
-              <v-card-title class="text-white nombre">{{ casa.descripcion }}</v-card-title>
+              <v-card-title class="text-white nombre">{{ casa.nombre }}</v-card-title>
               <v-btn icon class="like-btn" @click="toggleLike(index)">
                 <v-icon :color="casa.liked ? 'red' : 'grey'">mdi-heart</v-icon>
               </v-btn>
@@ -84,6 +85,8 @@ const viewMoreDetails = (casa) => {
       </v-card>
     </v-dialog>
   </div>
+
+  <Footer></Footer>
 </template>
 
 <style scoped>

@@ -17,7 +17,7 @@ const vuetify = createVuetify({
 });
 
 createApp(App)
-  .use(vuetify)
   .use(pinia)
+  .use(vuetify)
   .use(router)
   .mount('#app');

@@ -1,5 +1,11 @@
+<script setup>
+import HeaderBackOfficeAdmin from '../components/backOfficeAdmin/HeaderBackOfficeAdmin.vue';
+</script>
+
 <template>
-    <div>
-        SoyADmin
-    </div>
+    <HeaderBackOfficeAdmin/>
+
+    <main class="mt-16">
+        <router-view></router-view>
+    </main>
 </template>

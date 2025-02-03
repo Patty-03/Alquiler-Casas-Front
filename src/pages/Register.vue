@@ -1,10 +1,13 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+
 
 const router = useRouter();
 const authStore = useAuthStore();
+const route = useRoute()
+const isGestor = ref(route.params.id)
 
 const valid = ref(false);
 const email = ref('');
@@ -24,10 +27,10 @@ const register = async () => {
     clave: clave.value
   };
 
-  await authStore.createUser(userData);
+  await authStore.register(userData);
   if (!authStore.error) {
     dialog.value = true;
-    message.value = "Ha iniciado sesion correctamente";
+    message.value = "Su usuario ha sido creado con exito <br/> Inicie sesion";
     color.value = "success";
   } else {
     dialog.value = true;
@@ -83,8 +86,13 @@ const claveRules = [
 ];
 
 function goToLogin() {
-  router.push('/login');
+  dialog.value = false
+  if (isGestor.value === true)
+    router.push('/loginGestor');
+  else
+    router.push('/login')
 }
+
 </script>
 
 <template>
@@ -100,30 +108,26 @@ function goToLogin() {
 
         <v-text-field v-model="telefono" :rules="telefonoRules" label="Teléfono" required class="w-75"></v-text-field>
 
-        <v-text-field v-model="clave" :rules="claveRules" label="Clave" type="password" required class="w-75"></v-text-field>
+        <v-text-field v-model="clave" :rules="claveRules" label="Clave" type="password" required
+          class="w-75"></v-text-field>
 
-        <v-btn variant="flat" @click="goToLogin" class="mt-6 mb-4">¿Ya tienes una cuenta? Inicia sesion</v-btn>
+        <v-btn variant="flat" @click="router.push('/login');" class="mt-6 mb-4">¿Ya tienes una cuenta? Inicia
+          sesion</v-btn>
         <v-btn color="purple lighten-1" class="mb-2" @click="register">Registrarse</v-btn>
       </v-form>
     </v-container>
   </v-app>
 
-  <v-dialog
-    v-model="dialog"
-    scrollable 
-    :overlay="false"
-    max-width="500px"
-    transition="dialog-transition"
-  > 
-  <v-card class="pa-4">
-    <v-card-title primary-title class="text-wrap text-center">
-      {{ message }}
-    </v-card-title>
-    <v-card-actions class="d-flex align-center flex-column">
-      <v-btn :color="color" @click="dialog = false" variant="flat">Cerrar</v-btn>
-    </v-card-actions>
-  </v-card>
-    
+  <v-dialog v-model="dialog" scrollable :overlay="false" max-width="500px" transition="dialog-transition" persistent>
+    <v-card class="pa-4">
+      <v-card-title primary-title class="text-wrap text-center">
+        {{ message }}
+      </v-card-title>
+      <v-card-actions class="d-flex align-center flex-column">
+        <v-btn :color="color" @click="goToLogin" variant="flat">Cerrar</v-btn>
+      </v-card-actions>
+    </v-card>
+
   </v-dialog>
 </template>
 

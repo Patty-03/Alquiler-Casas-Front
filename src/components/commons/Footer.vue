@@ -28,7 +28,7 @@ function goToRegisterGestor(){
 
       <v-container class="bg-transparent d-flex flex-column justify-center align-content-center flex-wrap">
         <v-list class="bg-transparent d-flex flex-row flex-wrap justify-center">
-          <v-list-item link @click="goToRegisterGestor">
+          <v-list-item link @click="router.push('/loginGestor')">
             Alquila tu casa
           </v-list-item>
           <v-list-item link @click="goToTerms">

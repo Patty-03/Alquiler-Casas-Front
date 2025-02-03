@@ -9,6 +9,7 @@ const drawer = ref(false);
 const dialog = ref(false);
 const authStore = useAuthStore();
 const router = useRouter();
+const isGestor = ref(false)
 
 const isLogged = ref(!!authStore.token);
 
@@ -17,17 +18,18 @@ watch(() => authStore.token, (newToken) => {
 });
 
 const user = ref({
-    name: "",
-    email: "",
-    profilePicture: profile
-})
+        nombreUsuario: "",
+        correo: "",
+        numeroContacto: ""
+    })
 
 async function getUserInfo() {
     if (isLogged.value) {
         try {
-            const response = await getUserData();
-            user.value.name = response.nombreUsuario
-            user.value.email = response.correo
+            const response = await getUserData(localStorage.getItem('userId'));
+            user.value.nombreUsuario = response.value.nombreUsuario
+            user.value.correo = response.value.correo
+            user.value.numeroContacto = response.value.numeroContacto
         } catch (error) {
             console.error('Ocurrió un error al cargar la info del usuario', error);
         }
@@ -43,7 +45,8 @@ function goToLogin() {
 }
 
 function goToRegisterGestor() {
-    router.push('/registerGestor');
+    isGestor.value = true
+    router.push('/loginGestor');
 }
 
 function goToSaved() {
@@ -67,6 +70,16 @@ function logout() {
     dialog.value = false;
     router.push('/login');
 }
+
+function goToMyReservs(){
+if(authStore.isLoggedIn){
+    router.push(`/reservations/${localStorage.getItem('userId')}`)
+}
+else{
+    alert('Para acceder a sus reservas, debe loguearse')
+}
+}
+
 </script>
 
 <template>
@@ -86,7 +99,10 @@ function logout() {
                 <v-btn variant="text" @click="goToSaved">
                     Favoritos
                 </v-btn>
-                <v-btn variant="text" @click="goToRegisterGestor">
+                <v-btn variant="text" @click="goToMyReservs">
+                    Mis Reservas
+                </v-btn>
+                <v-btn variant="text" @click="router.push('/loginGestor')">
                     Alquila tu casa
                 </v-btn>
                 <v-btn icon @click="openUserDialog">
@@ -119,7 +135,14 @@ function logout() {
             </v-list-item>
             <v-list-item>
                 <v-list-item-content>
-                    <v-btn variant="text" @click="goToRegisterGestor">
+                    <v-btn variant="text" @click="goToMyReservs">
+                        Mis Reservas
+                    </v-btn>
+                </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+                <v-list-item-content>
+                    <v-btn variant="text" @click="router.push('/loginGestor')">
                         Alquila tu casa
                     </v-btn>
                 </v-list-item-content>
@@ -134,9 +157,9 @@ function logout() {
 
     <v-dialog v-model="dialog" max-width="400">
         <v-card class="d-flex align-center justify-center pa-6">
-            <v-img :src='user.profilePicture' class="rounded-circle" width="200"></v-img>
-            <v-card-title>{{ user.name }}</v-card-title>
-            <v-card-subtitle>{{ user.email }}</v-card-subtitle>
+            <v-img :src='user.profilePicture || profile' class="rounded-circle" width="200"></v-img>
+            <v-card-title>{{ user.nombreUsuario }}</v-card-title>
+            <v-card-subtitle>{{ user.correo }}</v-card-subtitle>
             <v-card-actions>
                 <v-btn @click="dialog = false">Cancelar</v-btn>
                 <v-btn @click="logout" color="red">Cerrar Sesión</v-btn>

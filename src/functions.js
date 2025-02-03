@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from './stores/auth';
+import { ref } from 'vue';
+
 
 export async function getHouses() {
     try {
@@ -23,7 +25,7 @@ export async function getReservationDays(idHouse){
     }
 }
 
-export async function filterByService(params){
+export async function filterByServiceAndOthers(params){
     try{
         const response = await axios.post('http://localhost:5048/api/Casas/filtrar', params)
         return response.data
@@ -47,6 +49,7 @@ export async function getHouseById(id) {
 
 export async function createReservation(reserv) {
     try {
+        console.log(reserv)
         const response = await axios.post('http://localhost:5048/api/Reservacion', reserv);
         return response.data;
     }
@@ -58,12 +61,14 @@ export async function createReservation(reserv) {
 
 export async function createHouse(house) {
     try {
-        const response = await axios.post('http://localhost:5048/api/Casas/crear', house)
+        const response = await axios.post('http://localhost:5048/api/Casas/crear', house, {
+            headers: {
+                 Authorization: `Bearer ${useAuthStore().token}`
+            }
+        });
         return response.data
-    }
-    catch (error) {
-        console.error('Error al crear la casa', error)
-        throw error
+    } catch (error) {
+        console.error('Error al crear la casa:', error);
     }
 }
 
@@ -78,15 +83,17 @@ export async function createReview(val) {
     }
 }
 
-export async function getUserData(){
-    const authStore = useAuthStore()
+export async function getUserData(id){
+    const user = ref({
+        nombreUsuario: "",
+        correo: "",
+        numeroContacto: ""
+    })
     try{
-        const response = await axios.get(`http://localhost:5048/api/Usuarios/${authStore.userId}`)
-        const user = {
-            nombreUsuario: response.data.nombreUsuario,
-            correo: response.data.correo,
-            numeroContacto: response.data.numeroContacto
-        }
+        const response = await axios.get(`http://localhost:5048/api/Usuarios/${id}`)
+        user.value.nombreUsuario = response.data.nombreUsuario
+        user.value.correo = response.data.correo
+        user.value.numeroContacto = response.data.numeroContacto
         return user
     }
     catch(error){
@@ -152,9 +159,13 @@ export async function getHousesByGestorId() {
     }
 }
 
-export async function editHouses(house){
+export async function updateHouse(house){
     try{
-        const response = await axios.patch('http://localhost:5048/api/Casas/editar')
+        const response = await axios.patch('http://localhost:5048/api/Casas/editar', {
+            headers: {
+                Authorization: `Bearer ${authStore.token}`,
+            }
+        })
         return response.data
     }
     catch(error){
@@ -164,8 +175,15 @@ export async function editHouses(house){
 }
 
 export async function deleteHouse(id){
+    const authStore = useAuthStore()
     try {
-        const response =  await axios.delete(`http://localhost:5048/api/Casas/${id}`)
+        const response =  await axios.delete(`http://localhost:5048/api/Casas/${id}`, 
+            {
+                headers: {
+                    Authorization: `Bearer ${authStore.token}`
+                }
+            }
+        )
         return response.data
     } catch (error) {
         console.error('Error al eliminar la casa', error)
@@ -174,6 +192,7 @@ export async function deleteHouse(id){
 }
 
 export async function filtroHome(params) {
+    console.log(params)
     try {
         const response = await axios.post('http://localhost:5048/api/Casas/filtrarInicial', params)
         return response.data
@@ -181,7 +200,7 @@ export async function filtroHome(params) {
         console.error('Error al filtrar las casas', error)
         throw error
     }
-}
+} 
 
 export async function getCiudades() {
     try {
@@ -215,25 +234,152 @@ export function decodeJWT(token) {
     }
 }
 
-
-
-export function convertToBase64(url, callback) {
-    fetch(url)
-        .then(response => response.blob())
-        .then(blob => {
-            const reader = new FileReader();
-            reader.onloadend = function() {
-                const base64String = reader.result.replace('data:', '').replace(/^.+,/, '');
-                callback(base64String);
-            };
-            reader.readAsDataURL(blob);
-        })
-        .catch(error => {
-            console.error('Error al convertir la imagen a Base64:', error);
-            callback(null);
-        });
-}
-
 export function calculateCost(housePrice, days){
     return housePrice * days
+}
+
+export async function getClientReservations() {
+
+    try {
+        const response = await axios.get(`http://localhost:5048/api/Reservacion/listaIdUsuario?idUsuario=${localStorage.getItem('userId')}`)
+        return response.data
+    } catch (error) {
+        console.log('No se pudieron obtener las reservaciones de este usuario')
+        throw error
+    }
+}
+
+export async function getReservations(id) {
+    const authStore = useAuthStore()
+
+    const jwt = authStore.token
+    try {
+        const response = await axios.get(`http://localhost:5048/api/Gestor/${id}/reservaciones`, {
+            headers: {
+                Authorization: `Bearer ${jwt}`
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.log('No se pudieron obtener las reservaciones de esta casa', error)
+        throw error
+    }
+}
+
+export function convertToFullPath(relativePath) {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5048';
+    const normalizedPath = relativePath.replace(/^wwwroot[\\\/]/, '').replace(/\\/g, '/');
+    return `${baseUrl}/${normalizedPath}`;
+  }
+  
+
+export async function getPendHouses() {
+    const idUsuario = localStorage.getItem('userId')
+    const authStore = useAuthStore()
+
+    try{
+        const response = await axios.get(`http://localhost:5048/api/Casas/listaCasasPendientesUsuario?idUsuario=${idUsuario}`, {
+            headers: {
+                Authorization: `Bearer ${authStore.token}`,
+            }
+        })
+        return response.data
+    }
+    catch(error){
+        console.log('No se pudieron obtener las casas pendientes', error)
+        throw error
+    }
+
+}
+
+export async function publicarAnuncio(idCasa){
+    const authStore = useAuthStore()
+    try {
+        const response = await axios.patch(`http://localhost:5048/api/Casas/publicar?idCasa=${idCasa}`, 
+            {}, {
+            headers: {
+                Authorization: `Bearer ${authStore.token}`,
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.error('No se pudo publicar la casa', error)
+        throw error
+    }
+}
+
+export async function getAllPendHouses() {
+const authStore = useAuthStore()
+    try{
+        const response = await axios.get('http://localhost:5048/api/Casas/listaCasasPendientes', {
+            headers: {
+                Authorization: `Bearer ${authStore.token}`,
+            }
+        })
+        return response.data
+    }
+    catch(error){
+        console.error('No se pudieron obtener las casas pendientes', error)
+        throw error
+    }
+}
+
+export async function getAllUsers() {
+    const authStore = useAuthStore()
+    try {
+        const response = await axios.get('http://localhost:5048/api/Usuarios/listaUsuarios', {
+            headers: {
+                Authorization: `Bearer ${authStore.token}`,
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.error('No se pudieron obtener todos los usuarios', error)
+        throw error
+    }
+}
+
+export async function cambiarRol(params){
+    const authStore = useAuthStore()
+    try {
+        const response = await axios.patch('http://localhost:5048/api/Usuarios/cambiarRol', params, {
+            headers: {
+                Authorization: `Bearer ${authStore.token}`,
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.error('No se pudo cambiar el rol del usuario', error)
+        throw error
+    }
+}
+
+export async function getGananciasTotalesAdmin() {
+    const authStore = useAuthStore()
+    try {
+        const response = await axios.get('http://localhost:5048/api/Administrador/gananciasTotales', {
+            headers: {
+                Authorization: `Bearer ${authStore.token}`
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.error('No se pudieron obtener las ganancias', error)
+        throw error
+    }
+}
+
+export async function getGananciasMensualesAdmin() {
+    const authStore = useAuthStore()
+    try {
+        const response = await axios.get('http://localhost:5048/api/Administrador/gananciasMensuales', {
+            headers: {
+                Authorization: `Bearer ${authStore.token}`
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.error('No se pudieron obtener las ganancias', error)
+        throw error
+    }
 }

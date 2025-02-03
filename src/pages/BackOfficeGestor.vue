@@ -1,28 +1,12 @@
 <script setup>
-import HeaderBackOffice from '../components/backOfficeGestor/HeaderBackOffice.vue';
-import SideBarBackOffice from '../components/backOfficeGestor/SideBarBackOffice.vue';
+import SideBarBackOffice from '../components/backOfficeGestor/HeaderBackOffice.vue';
 </script>
 
 <template>
     <header>
-        <HeaderBackOffice></HeaderBackOffice>
+        <SideBarBackOffice></SideBarBackOffice>
     </header>
-    <SideBarBackOffice></SideBarBackOffice>
-    <main class="main">
-        <router-view></router-view>
+    <main class="d-flex align-center justify-center mt-10">
+            <router-view></router-view>
     </main>
 </template>
-
-<style scoped>
-.main {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-</style>

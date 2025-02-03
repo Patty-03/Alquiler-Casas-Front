@@ -1,20 +1,19 @@
 <script setup>
-import { getGananciasTotales, getGananciasMensuales } from '../../functions';
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '../../stores/auth';
+import { getGananciasTotales } from '../../functions';
 
-const gananciasTotales = ref('')
-const gananciasMensuales = ref('')
-const authStore = useAuthStore()
+const gananciasTotales = ref(0)
+const gananciasMensuales = ref(0)
 
-onMounted(async () => {
+/*onMounted(async  () => {
     try {
         gananciasTotales.value = await getGananciasTotales()
         gananciasMensuales.value = await getGananciasMensuales()
     } catch (error) {
         console.error('Error al obtener las ganancias:', error);
     }
-});
+});*/
 </script>
 
 <template>

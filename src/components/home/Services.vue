@@ -2,26 +2,20 @@
   <div class="pa-14">
     <h1 class="mt-10 text-uppercase pb-10">Servicios que te acomodan</h1>
 
-    <v-list class="d-flex flex-row flex-wrap justify-space-evenly">
+    <div class="d-flex flex-row flex-wrap justify-space-evenly">
       <v-list-item v-for="(item, index) in items" :key="index" link class="pa-2">
-        <v-list-item-content :class="['item', { selected: item.checked }]" class="rounded-pill">
-          <v-card @click="item.checked = !item.checked">
-            <v-icon class="icon" :size="40" color="purple lighten-1">mdi-{{ item.icon }}</v-icon>
-            <v-list-item-title>{{ item.text }}</v-list-item-title>
-          </v-card>
-        </v-list-item-content>
+        <v-card @click="item.checked = !item.checked" :class="['custom-item', { selected: item.checked }]">
+          <v-icon class="icon" :size="40" color="purple lighten-1">mdi-{{ item.icon }}</v-icon>
+          <v-list-item-title>{{ item.text }}</v-list-item-title>
+        </v-card>
       </v-list-item>
-    </v-list>
-  </div>
-  <div>
-    <v-btn color="purple" @click="submit">Buscar</v-btn>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { filterByService } from '../../functions';
 
 const router = useRouter();
 
@@ -42,47 +36,6 @@ let items = ref([
   { icon: 'stove', text: 'Cocina', backend: 'cocina', checked: false }
 ]);
 
-const params = ref({
-  cantMaxPersonas: 0,
-  cantHabitaciones: 0,
-  cantBanos: 0,
-  cantCuartos: 0,
-  cocina: true,
-  terraza_balcon: true,
-  barbacoa: true,
-  garaje: false,
-  piscina: false,
-  gimnasio: true,
-  lavadora_secadora: true,
-  tv: false,
-  permiteMenores: true,
-  permiteFumar: false,
-  permiteMascotas: true,
-  wifi: true,
-  aguaCaliente: false,
-  climatizada: false,
-  precioNoche: 0,
-  precioMes: 0,
-  areaTotal: 0,
-});
-
-async function submit() {
-  items.value.forEach(item => {
-    if (params.value.hasOwnProperty(item.backend)) {
-      params.value[item.backend] = item.checked;
-    }
-  });
-  console.log(params.value);
-
-  try{
-    const response = await filterByService(params)
-    router.push({ path: '/filterResults', query: { data: JSON.stringify(response) } })
-  }
-  catch(error){
-    alert('Error', error)
-  }
-
-}
 </script>
 
 <style scoped>
@@ -90,16 +43,13 @@ async function submit() {
   margin-top: 10px;
 }
 
-.item {
+.custom-item {
   align-items: center;
   justify-content: center;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
-}
-
-.item.selected {
-  transform: scale(1.2);
   padding: 1rem;
 }
+
 </style>
